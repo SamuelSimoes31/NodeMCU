@@ -10,3 +10,11 @@ botaoTeste.onclick = e => {
     })
 
 }
+
+const sliderRed = document.getElementById('red')
+sliderRed.oninput = () => {
+    $.ajax({
+        url: 'teste',
+        data: {string: sliderRed.value}
+    })
+}
