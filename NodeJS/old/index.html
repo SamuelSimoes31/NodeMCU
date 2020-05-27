@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGB NodeMCU</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <script src="text/javascript">
+        let socket = io()
+        socket.on('dadoNodeMCU', dado => {
+            console.log(dado)
+        })
+    </script>
+</body>
+</html>
