@@ -12,14 +12,17 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("OPA");
-  char str[4]={0};
+  // Serial.println("OPA");
+  // char str[4]={0};
+  // if(Serial.available()){
+  //   Serial.readBytes(str,3);
+  //   Serial.print(str);
+  //   analogWrite(D6,1024-4*str[0]);
+  //   analogWrite(D7,1024-4*str[1]);
+  //   analogWrite(D8,1024-4*str[2]);
+  // }
+  // delay(2000);
   if(Serial.available()){
-    Serial.readBytes(str,3);
-    Serial.print(str);
-    analogWrite(D6,1024-4*str[0]);
-    analogWrite(D7,1024-4*str[1]);
-    analogWrite(D8,1024-4*str[2]);
+    Serial.write(Serial.read());
   }
-  delay(2000);
 }
