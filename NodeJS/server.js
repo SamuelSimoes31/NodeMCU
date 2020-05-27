@@ -18,8 +18,9 @@ const colors = {
 
 app.get('/rgb',(req,res) => {
     console.log(req.query.color,req.query.value)
-    res.end()
+    
     colors[`${req.query.color}`] = req.query.value
+    res.send(colors)
     const buf = Buffer.from([colors.red,colors.green,colors.blue])
     // console.log(buf)
     serial.writeString(buf)

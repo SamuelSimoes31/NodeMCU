@@ -24,6 +24,7 @@ sliders.forEach(e => {
     const slider = e.children[0]
     const p = e.children[1]
     // console.log(slider,p)
+    const colorSelected = document.querySelector('.color')
     slider.oninput = () => {
         p.innerHTML = slider.value
         $.ajax({
@@ -31,7 +32,11 @@ sliders.forEach(e => {
             data : {
                 color: slider.id,
                 value: slider.value
+            },
+            success(data){
+                colorSelected.style.background = `rgb(${data.red},${data.green},${data.blue})`
             }
         })
+        
     }
 })

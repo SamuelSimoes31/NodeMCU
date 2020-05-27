@@ -11,7 +11,7 @@ writeString = str => port.write(str, err => {
     if (err) {
         return console.log('Error on write: ', err.message)
       }
-      console.log('message written')
+      console.log('enviado:',str)
 })
 
 module.exports = {

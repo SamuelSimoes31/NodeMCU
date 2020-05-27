@@ -5,26 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RGB NodeMCU</title>
     <script src="node_modules\jquery\dist\jquery.min.js"></script>
-    <style>
-        input, p {
-            display: inline;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="sliders">
-        <div>
-            <input type="range" value="0" min="0" max="255" id="red">
+        <div class="sliderDiv">
+            <input class="slider" type="range" value="0" min="0" max="255" id="red">
             <p id="redValue">0</p>
         </div>
-        <div>
-            <input type="range" value="0" min="0" max="255" id="green">
+        <div class="sliderDiv">
+            <input class="slider" type="range" value="0" min="0" max="255" id="green">
             <p id="greenValue">0</p>
         </div>
-        <div>
-            <input type="range" value="0" min="0" max="255" id="blue">
+        <div class="sliderDiv">
+            <input class="slider" type="range" value="0" min="0" max="255" id="blue">
             <p id="blueValue">0</p>
         </div>
+    </div>
+    <div class="color">
+
     </div>
     <script src="script.js"></script>
 </body>
