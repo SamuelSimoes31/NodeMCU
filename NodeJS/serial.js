@@ -7,7 +7,7 @@ parser.on('data', function (data) {
   console.log('parser.on:', data)
 })
 
-writeString = str => parser.write(str, err => {
+writeString = str => port.write(str, err => {
     if (err) {
         return console.log('Error on write: ', err.message)
       }

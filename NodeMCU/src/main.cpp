@@ -11,18 +11,16 @@ void setup() {
   analogWrite(D8,1024);
 }
 
+byte str[4]={0};
+
 void loop() {
-  // Serial.println("OPA");
-  // char str[4]={0};
-  // if(Serial.available()){
-  //   Serial.readBytes(str,3);
-  //   Serial.print(str);
-  //   analogWrite(D6,1024-4*str[0]);
-  //   analogWrite(D7,1024-4*str[1]);
-  //   analogWrite(D8,1024-4*str[2]);
-  // }
-  // delay(2000);
   if(Serial.available()){
-    Serial.write(Serial.read());
+    Serial.readBytes(str,3);
+    Serial.write(str[0]);
+    Serial.write(str[1]);
+    Serial.write(str[2]);
+    analogWrite(D6,1024-4*str[0]);
+    analogWrite(D7,1024-4*str[1]);
+    analogWrite(D8,1024-4*str[2]);
   }
 }

@@ -10,10 +10,19 @@ app.get('/teste', (req,res) => {
     res.send(req.query.string)
 })
 
+const colors = {
+    red: 0,
+    green: 0,
+    blue: 0
+}
+
 app.get('/rgb',(req,res) => {
     console.log(req.query.color,req.query.value)
-    serial.writeString(`${req.query.color} ${req.query.value}\r\n`)
     res.end()
+    colors[`${req.query.color}`] = req.query.value
+    const buf = Buffer.from([colors.red,colors.green,colors.blue])
+    // console.log(buf)
+    serial.writeString(buf)
 })
 
 app.listen(8080, () => console.log('Executando na porta 8080...'))
