@@ -1,29 +1,36 @@
 const express = require('express')
-const app = express()
-
+const path = require('path')
 const serial = require('./serial')
 
-app.use(express.static('.'))
+const app = express()
+const server = require('http').createServer(app)
+const io = require('socket.io')(server)
 
-app.get('/teste', (req,res) => {
-    console.log(req.query.string)
-    res.send(req.query.string)
+app.use(express.static(path.join(__dirname,'public')))
+app.set('views', path.join(__dirname, 'public'))
+app.engine('html',require('ejs').renderFile)
+app.set('view engine','html')
+
+app.use('/', (req,res) => {
+    res.render('index.html')
 })
 
-const colors = {
-    red: 0,
-    green: 0,
-    blue: 0
-}
+io.on('connection', socket => {
+    console.log(`Socket conectado: ${socket.id}`)
 
-app.get('/rgb',(req,res) => {
-    console.log(req.query.color,req.query.value)
-    
-    colors[`${req.query.color}`] = req.query.value
-    res.send(colors)
-    const buf = Buffer.from([colors.red,colors.green,colors.blue])
-    // console.log(buf)
-    serial.writeString(buf)
+    socket.on('serial',({port,baud}) => {
+        if(serial.isOpen()) serial.close()
+        else serial.open(port,baud)
+        setTimeout(()=>{
+            console.log('porta aberta?:',serial.isOpen())
+            io.emit('serialState',serial.isOpen())
+        },50)
+    })
+
+    socket.on('color',(colors)=>{
+        const buf = Buffer.from([colors.red,colors.green,colors.blue])
+        serial.write(buf)
+    })
 })
 
-app.listen(8080, () => console.log('Executando na porta 8080...'))
+server.listen(8080,() => console.log('Executando na porta 8080...'))

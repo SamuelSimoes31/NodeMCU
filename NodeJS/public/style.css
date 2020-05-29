@@ -52,3 +52,7 @@ opacity: 1;
     height: 200px;
     border: solid 1px black;
 }
+
+.color {
+    background: black;
+}
