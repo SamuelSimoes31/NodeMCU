@@ -1,4 +1,9 @@
 #include <Arduino.h>
+#include <dht11.h>
+
+#define DHT11PIN D5
+
+dht11 DHT11;
 
 void setup() {
   Serial.begin(9600);
@@ -23,4 +28,12 @@ void loop() {
     analogWrite(D7,1024-4*str[1]);
     analogWrite(D8,1024-4*str[2]);
   }
+
+   int chk = DHT11.read(DHT11PIN); 
+   Serial.print("Temp: ");
+   Serial.print(DHT11.temperature);
+   Serial.print("°C Humi: ");
+   Serial.print(DHT11.humidity);
+   Serial.println("%");
+   delay(1000);
 }
