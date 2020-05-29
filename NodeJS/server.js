@@ -19,11 +19,17 @@ io.on('connection', socket => {
     console.log(`Socket conectado: ${socket.id}`)
 
     socket.on('serial',({port,baud}) => {
-        console.log(port,baud)
+        if(serial.isOpen()) serial.close()
+        else serial.open(port,baud)
+        setTimeout(()=>{
+            console.log('porta aberta?:',serial.isOpen())
+            io.emit('serialState',serial.isOpen())
+        },50)
     })
 
-    socket.on('color',({color,value})=>{
-        console.log(color,value)
+    socket.on('color',(colors)=>{
+        const buf = Buffer.from([colors.red,colors.green,colors.blue])
+        serial.write(buf)
     })
 })
 
