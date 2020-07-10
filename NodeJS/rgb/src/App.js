@@ -1,5 +1,9 @@
 import React from 'react';
 import './App.css';
+import io from 'socket.io-client'
+
+const socket = io('http://localhost:8080')
+socket.on('connect', () => console.log('[IO] Connect => A new connection has been established'))
 
 class App extends React.Component{
 
@@ -8,11 +12,15 @@ class App extends React.Component{
     this.state = {
       port: 'COM8',
       baud: 9600,
-      red: 0,
-      green: 0,
-      blue: 0
+      color: {
+        red: 0,
+        green: 0,
+        blue: 0
+      }
     }
     this.handleChange = this.handleChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleColorChange = this.handleColorChange.bind(this)
   }
 
   handleChange(e){
@@ -21,8 +29,25 @@ class App extends React.Component{
     this.setState(obj)
   }
 
+  handleColorChange(e){
+    let color = this.state.color
+    color[e.target.id]=e.target.value
+    this.setState(color)
+    socket.emit('color',{
+      color: this.state.color
+    })
+  }
+
   handleSubmit(e){
     e.preventDefault()
+    socket.emit('serial',{
+      port: this.state.port,
+      baud: this.state.baud
+    })
+  }
+
+  componentDidUpdate(prevProps,prevState){
+    
   }
 
   render(){
@@ -37,19 +62,19 @@ class App extends React.Component{
         </form>
         <div id="sliders">
           <div className="sliderDiv">
-            <input className="slider" type="range" value={this.state.red} min="0" max="255" id="red" onInput={this.handleChange}/>
-            <p id="redValue">{this.state.red}</p>
+            <input className="slider" type="range" value={this.state.color.red} min="0" max="255" id="red" onChange={this.handleColorChange}/>
+            <p id="redValue">{this.state.color.red}</p>
           </div>
           <div className="sliderDiv">
-            <input className="slider" type="range" value={this.state.green} min="0" max="255" id="green" onInput={this.handleChange}/>
-            <p id="greenValue">{this.state.green}</p>
+            <input className="slider" type="range" value={this.state.color.green} min="0" max="255" id="green" onChange={this.handleColorChange}/>
+            <p id="greenValue">{this.state.color.green}</p>
           </div>
           <div className="sliderDiv">
-            <input className="slider" type="range" value={this.state.blue} min="0" max="255" id="blue" onInput={this.handleChange}/>
-            <p id="blueValue">{this.state.blue}</p>
+            <input className="slider" type="range" value={this.state.color.blue} min="0" max="255" id="blue" onChange={this.handleColorChange}/>
+            <p id="blueValue">{this.state.color.blue}</p>
           </div>
         </div>
-        <div className="color" style={{backgroundColor: `rgb(${this.state.red},${this.state.green},${this.state.blue})`}}></div>
+        <div className="color" style={{backgroundColor: `rgb(${this.state.color.red},${this.state.color.green},${this.state.color.blue})`}}></div>
       </div>
     );
   }
