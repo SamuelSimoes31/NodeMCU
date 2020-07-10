@@ -21,10 +21,14 @@ class App extends React.Component{
     this.setState(obj)
   }
 
+  handleSubmit(e){
+    e.preventDefault()
+  }
+
   render(){
     return (
       <div className="App">
-        <form name="serial" id="serial">
+        <form name="serial" id="serial" onSubmit={this.handleSubmit}>
           <label for="port">Porta COM</label>
           <input type="text" name="port" id="port" value={this.state.port} onChange={this.handleChange}/><br/>
           <label for="baud">Baudrate</label>
@@ -37,7 +41,7 @@ class App extends React.Component{
             <p id="redValue">{this.state.red}</p>
           </div>
           <div className="sliderDiv">
-            <input className="slider" type="range" value={this.state.greeb} min="0" max="255" id="green" onInput={this.handleChange}/>
+            <input className="slider" type="range" value={this.state.green} min="0" max="255" id="green" onInput={this.handleChange}/>
             <p id="greenValue">{this.state.green}</p>
           </div>
           <div className="sliderDiv">
