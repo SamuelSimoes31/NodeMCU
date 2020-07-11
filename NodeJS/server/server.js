@@ -46,6 +46,10 @@ io.on('connection', socket => {
     }
   })
 
+  socket.on('color', data => {
+    console.log('[SOCKET] color => ',data)
+})
+
   socket.on('disconnect', () => {
     console.log('[SOCKET] Disconnect => A connection was disconnected')
     // if(port) port.close( err => console.log('[SERIAL] Porta fechada. Erro:',err))

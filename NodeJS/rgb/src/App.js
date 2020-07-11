@@ -17,8 +17,7 @@ class App extends React.Component{
         green: 0,
         blue: 0
       },
-      buttonSerial: 'OPEN',
-      // portIsOn: null
+      portIsOn: null
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -42,7 +41,7 @@ class App extends React.Component{
 
   handleSubmit(e){
     e.preventDefault()
-    if(this.state.buttonSerial === 'OPEN')
+    if(!this.state.portIsOn)
       socket.emit('serialRequest',{
         port: this.state.port,
         baud: this.state.baud
@@ -54,17 +53,7 @@ class App extends React.Component{
   componentDidMount(){
     socket.on('serialResponse', portIsOn => {
       console.log('portIsOn:',portIsOn)
-      // this.setState({portIsOn})
-      if(portIsOn) {
-        document.querySelectorAll('[portopen]').forEach(e => e.removeAttribute("disabled"))
-        document.querySelectorAll('[portclosed]').forEach(e => e.setAttribute("disabled", "disabled"))
-        this.setState({buttonSerial: 'CLOSE'})
-      }
-      else {
-        document.querySelectorAll('[portopen]').forEach(e => e.setAttribute("disabled", "disabled"))
-        document.querySelectorAll('[portclosed]').forEach(e => e.removeAttribute("disabled"))
-        this.setState({buttonSerial: 'OPEN'})
-      }
+      this.setState({portIsOn})
     })
   }
 
@@ -73,22 +62,22 @@ class App extends React.Component{
       <div className="App">
         <form name="serial" id="serial" onSubmit={this.handleSubmit}>
           <label for="port">Porta COM</label>
-          <input type="text" name="port" id="port" portclosed value={this.state.port} onChange={this.handleChange}/><br/>
+          <input type="text" name="port" id="port" value={this.state.port} disabled={this.state.portIsOn?"disabled":""} onChange={this.handleChange}/><br/>
           <label for="baud">Baudrate</label>
-          <input type="number" name="baud" id="baud" portclosed value={this.state.baud} onChange={this.handleChange}/><br/>
-          <input type="submit" name="submit" value={this.state.buttonSerial} />
+          <input type="number" name="baud" id="baud" value={this.state.baud} disabled={this.state.portIsOn?"disabled":""} onChange={this.handleChange}/><br/>
+          <input type="submit" name="submit" value={this.state.portIsOn?'CLOSE':'OPEN'} />
         </form>
         <div id="sliders">
           <div className="sliderDiv">
-            <input className="slider" type="range" value={this.state.color.red} min="0" max="255" id="red" portopen disabled onChange={this.handleColorChange}/>
+            <input className="slider" type="range" value={this.state.color.red} min="0" max="255" id="red" disabled={this.state.portIsOn?"":"disabled"} onChange={this.handleColorChange}/>
             <p id="redValue">{this.state.color.red}</p>
           </div>
           <div className="sliderDiv">
-            <input className="slider" type="range" value={this.state.color.green} min="0" max="255" id="green" portopen disabled onChange={this.handleColorChange}/>
+            <input className="slider" type="range" value={this.state.color.green} min="0" max="255" id="green" disabled={this.state.portIsOn?"":"disabled"} onChange={this.handleColorChange}/>
             <p id="greenValue">{this.state.color.green}</p>
           </div>
           <div className="sliderDiv">
-            <input className="slider" type="range" value={this.state.color.blue} min="0" max="255" id="blue" portopen disabled onChange={this.handleColorChange}/>
+            <input className="slider" type="range" value={this.state.color.blue} min="0" max="255" id="blue" disabled={this.state.portIsOn?"":"disabled"} onChange={this.handleColorChange}/>
             <p id="blueValue">{this.state.color.blue}</p>
           </div>
         </div>
