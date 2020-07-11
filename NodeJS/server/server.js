@@ -24,32 +24,35 @@ io.on('connection', socket => {
       port.on('open', () => {
         console.log('[SERIAL] Port is opened')
         portIsOpen = true;
-        io.emit('serialResponse',true)
+        io.emit('serialResponse',{status:true,message:'Porta aberta'})
       })
       port.on('error', function(err) {
         console.log('Error: ', err.message)
-        io.emit('serialResponse',false)
+        io.emit('serialResponse',{status:false,message:'[ERROR]' + err.message})
       })
   
       port.on('close', () => {
         console.log('[SERIAL] Port is closed')
         portIsOpen = false;
-        io.emit('serialResponse',false)
+        io.emit('serialResponse',{status:false,message:'Porta dechada'})
       })
+
     }
     else if(COMport){
       console.log('AQUI e port.isOpen:',port.isOpen)
-      io.emit('serialResponse', true)
+      io.emit('serialResponse', {status:true,message:'Porta já estava aberta'})
     }
     else{
       port.close()
     }
   })
-
-  socket.on('color', data => {
-    console.log('[SOCKET] color => ',data)
-})
-
+  
+  socket.on('color', ({color}) => {
+    console.log('[SOCKET] color => ',color)
+    const buf = Buffer.from([color.red,color.green,color.blue])
+    port.write(buf, err => {if(err)console.log('Error on write: ', '[ERROR]' + err.message)})
+  })
+  
   socket.on('disconnect', () => {
     console.log('[SOCKET] Disconnect => A connection was disconnected')
     // if(port) port.close( err => console.log('[SERIAL] Porta fechada. Erro:',err))

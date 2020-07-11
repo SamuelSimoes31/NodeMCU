@@ -17,7 +17,8 @@ class App extends React.Component{
         green: 0,
         blue: 0
       },
-      portIsOn: null
+      portIsOn: null,
+      portMessage: 'Clique para abri a porta'
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -32,7 +33,7 @@ class App extends React.Component{
 
   handleColorChange(e){
     let color = this.state.color
-    color[e.target.id]=e.target.value
+    color[e.target.id]=parseInt(e.target.value)
     this.setState(color)
     socket.emit('color',{
       color: this.state.color
@@ -51,10 +52,15 @@ class App extends React.Component{
   }
 
   componentDidMount(){
-    socket.on('serialResponse', portIsOn => {
-      console.log('portIsOn:',portIsOn)
-      this.setState({portIsOn})
+    socket.on('serialResponse', ({status,message}) => {
+      console.log('portIsOn:',status)
+      this.setState({
+        portIsOn: status,
+        portMessage: message
+      })
     })
+
+    socket.on('disconnect', () => console.log('[IO] Disconnect => MORREU'))
   }
 
   render(){
@@ -66,6 +72,7 @@ class App extends React.Component{
           <label for="baud">Baudrate</label>
           <input type="number" name="baud" id="baud" value={this.state.baud} disabled={this.state.portIsOn?"disabled":""} onChange={this.handleChange}/><br/>
           <input type="submit" name="submit" value={this.state.portIsOn?'CLOSE':'OPEN'} />
+          <p>{this.state.portMessage}</p>
         </form>
         <div id="sliders">
           <div className="sliderDiv">
