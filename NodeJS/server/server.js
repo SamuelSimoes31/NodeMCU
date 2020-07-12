@@ -47,7 +47,7 @@ io.on('connection', socket => {
     }
   })
   
-  socket.on('color', ({color}) => {
+  socket.on('color', (color) => {
     console.log('[SOCKET] color => ',color)
     const buf = Buffer.from([color.red,color.green,color.blue])
     port.write(buf, err => {if(err)console.log('Error on write: ', '[ERROR]' + err.message)})
