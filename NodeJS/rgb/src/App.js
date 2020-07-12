@@ -18,17 +18,21 @@ function App(props){
       setPortIsOn(status)
       setPortMessage(message)
     })
-
     socket.on('disconnect', () => console.log('[IO] Disconnect => MORREU'))
   },[])
 
-  function handleColorChange(e){
-    console.log('color before:',color)
-    let newColor = color
-    newColor[e.target.id]=parseInt(e.target.value)
-    setColor(newColor)
-    console.log('color after:',color)
+  useEffect(() => {
     socket.emit('color',color)
+  },[color])
+
+  function handleColorChange(e){
+    // console.log('color before:',color)
+    setColor({
+      ...color,
+      [e.target.id]: parseInt(e.target.value)
+    })
+    // socket.emit('color',color)
+    // console.log('color after:',color)
   }
 
   function handleSubmit(e){
