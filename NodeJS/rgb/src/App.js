@@ -1,71 +1,17 @@
-import React,{ useState, useEffect} from 'react';
+import React from 'react';
 import './App.css';
-import io from 'socket.io-client'
-
-const socket = io('http://localhost:8080')
-socket.on('connect', () => console.log('[IO] Connect => A new connection has been established'))
+import GenerealContextProvider from './components/GeneralContext';
+import Serial from './components/Serial';
+import Color from './components/Color';
 
 function App(props){
-  const [port,setPort] = useState('COM8')
-  const [baud,setBaud] = useState(9600)
-  const [color,setColor] = useState({red:0, green:0, blue:0})
-  const [portIsOn,setPortIsOn] = useState(null)
-  const [portMessage,setPortMessage] = useState('Clique para abri a porta')
-
-  useEffect(() => {
-    socket.on('serialResponse', ({status,message}) => {
-      console.log('portIsOn:',status)
-      setPortIsOn(status)
-      setPortMessage(message)
-    })
-    socket.on('disconnect', () => console.log('[IO] Disconnect => MORREU'))
-  },[])
-
-  useEffect(() => {
-    socket.emit('color',color)
-  },[color])
-
-  function handleColorChange(e){
-    // console.log('color before:',color)
-    setColor({
-      ...color,
-      [e.target.id]: parseInt(e.target.value)
-    })
-    // socket.emit('color',color)
-    // console.log('color after:',color)
-  }
-
-  function handleSubmit(e){
-    e.preventDefault()
-    if(!portIsOn) socket.emit('serialRequest',{port,baud})
-    else socket.emit('serialRequest',{})
-  }
 
   return (
     <div className="App">
-      <form name="serial" id="serial" onSubmit={handleSubmit} >
-        <label for="port">Porta COM</label>
-        <input type="text" name="port" id="port" value={port} disabled={portIsOn?"disabled":""} onChange={e => setPort(e.target.value)}/><br/>
-        <label for="baud">Baudrate</label>
-        <input type="number" name="baud" id="baud" value={baud} disabled={portIsOn?"disabled":""} onChange={e => setBaud(e.target.value)}/><br/>
-        <input type="submit" name="submit" value={portIsOn?'CLOSE':'OPEN'} />
-        <p>{portMessage}</p>
-      </form>
-      <div id="sliders" disabled={portIsOn?"":"disabled"}>
-        <div className="sliderDiv">
-          <input className="slider" type="range" value={color.red} min="0" max="255" id="red" onChange={handleColorChange}/>
-          <p id="redValue">{color.red}</p>
-        </div>
-        <div className="sliderDiv">
-          <input className="slider" type="range" value={color.green} min="0" max="255" id="green" onChange={handleColorChange}/>
-          <p id="greenValue">{color.green}</p>
-        </div>
-        <div className="sliderDiv">
-          <input className="slider" type="range" value={color.blue} min="0" max="255" id="blue" onChange={handleColorChange}/>
-          <p id="blueValue">{color.blue}</p>
-        </div>
-      </div>
-      <div className="color" style={{backgroundColor: `rgb(${color.red},${color.green},${color.blue})`}}></div>
+    <GenerealContextProvider>
+      <Serial/>
+      <Color/>
+    </GenerealContextProvider>
     </div>
   );
 }
