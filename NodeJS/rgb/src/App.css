@@ -59,3 +59,9 @@ opacity: 1;
 .color {
   background: black;
 }
+
+div[disabled]
+{
+  pointer-events: none;
+  opacity: 0.5;
+}

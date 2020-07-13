@@ -15,7 +15,7 @@ let portIsOpen = null;
 io.on('connection', socket => {
   console.log('[IO] Connection => Server has a new connection')
   
-  // io.emit('serialResponse', (portIsOpen))
+  io.emit('serialResponse', {status:portIsOpen,message:'...'})
 
   socket.on('serialRequest', ({port: COMport,baud}) => {
     if(port===null || port.isOpen===false){ 
@@ -45,14 +45,15 @@ io.on('connection', socket => {
     else{
       port.close()
     }
+
+    socket.on('color', (color) => {
+      console.log('[SOCKET] color => ',color)
+      const buf = Buffer.from([color.red,color.green,color.blue])
+      port.write(buf, err => {if(err)console.log('Error on write: ', '[ERROR]' + err.message)})
+    })
+
   })
-  
-  socket.on('color', (color) => {
-    console.log('[SOCKET] color => ',color)
-    const buf = Buffer.from([color.red,color.green,color.blue])
-    port.write(buf, err => {if(err)console.log('Error on write: ', '[ERROR]' + err.message)})
-  })
-  
+    
   socket.on('disconnect', () => {
     console.log('[SOCKET] Disconnect => A connection was disconnected')
     // if(port) port.close( err => console.log('[SERIAL] Porta fechada. Erro:',err))

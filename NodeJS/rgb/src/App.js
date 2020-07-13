@@ -51,17 +51,17 @@ function App(props){
         <input type="submit" name="submit" value={portIsOn?'CLOSE':'OPEN'} />
         <p>{portMessage}</p>
       </form>
-      <div id="sliders">
+      <div id="sliders" disabled={portIsOn?"":"disabled"}>
         <div className="sliderDiv">
-          <input className="slider" type="range" value={color.red} min="0" max="255" id="red" disabled={portIsOn?"":"disabled"} onChange={handleColorChange}/>
+          <input className="slider" type="range" value={color.red} min="0" max="255" id="red" onChange={handleColorChange}/>
           <p id="redValue">{color.red}</p>
         </div>
         <div className="sliderDiv">
-          <input className="slider" type="range" value={color.green} min="0" max="255" id="green" disabled={portIsOn?"":"disabled"} onChange={handleColorChange}/>
+          <input className="slider" type="range" value={color.green} min="0" max="255" id="green" onChange={handleColorChange}/>
           <p id="greenValue">{color.green}</p>
         </div>
         <div className="sliderDiv">
-          <input className="slider" type="range" value={color.blue} min="0" max="255" id="blue" disabled={portIsOn?"":"disabled"} onChange={handleColorChange}/>
+          <input className="slider" type="range" value={color.blue} min="0" max="255" id="blue" onChange={handleColorChange}/>
           <p id="blueValue">{color.blue}</p>
         </div>
       </div>
