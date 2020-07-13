@@ -1,88 +1,95 @@
 #include <Arduino.h>
-#include <Wire.h>
- #include <SPI.h>
-// DHT Temperature & Humidity Sensor
-// Unified Sensor Library Example
-// Written by Tony DiCola for Adafruit Industries
-// Released under an MIT license.
+double Fahrenheit(double celsius) 
+{
+        return 1.8 * celsius + 32;
+}    //摄氏温度度转化为华氏温度
 
-// REQUIRES the following Arduino libraries:
-// - DHT Sensor Library: https://github.com/adafruit/DHT-sensor-library
-// - Adafruit Unified Sensor Lib: https://github.com/adafruit/Adafruit_Sensor
+double Kelvin(double celsius)
+{
+        return celsius + 273.15;
+}     //摄氏温度转化为开氏温度
 
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
-#include <DHT_U.h>
-
-#define DHTPIN D5     // Digital pin connected to the DHT sensor 
-// Feather HUZZAH ESP8266 note: use pins 3, 4, 5, 12, 13 or 14 --
-// Pin 15 can work but DHT must be disconnected during program upload.
-
-// Uncomment the type of sensor in use:
-#define DHTTYPE    DHT11     // DHT 11
-// #define DHTTYPE    DHT22     // DHT 22 (AM2302)
-//#define DHTTYPE    DHT21     // DHT 21 (AM2301)
-
-// See guide for details on sensor wiring and usage:
-//   https://learn.adafruit.com/dht/overview
-
-DHT_Unified dht(DHTPIN, DHTTYPE);
-
-uint32_t delayMS;
-
-void setup() {
-  Serial.begin(9600);
-  // Initialize device.
-  dht.begin();
-  Serial.println(F("DHTxx Unified Sensor Example"));
-  // Print temperature sensor details.
-  sensor_t sensor;
-  dht.temperature().getSensor(&sensor);
-  Serial.println(F("------------------------------------"));
-  Serial.println(F("Temperature Sensor"));
-  Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
-  Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
-  Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
-  Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("°C"));
-  Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("°C"));
-  Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("°C"));
-  Serial.println(F("------------------------------------"));
-  // Print humidity sensor details.
-  dht.humidity().getSensor(&sensor);
-  Serial.println(F("Humidity Sensor"));
-  Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
-  Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
-  Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
-  Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("%"));
-  Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("%"));
-  Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("%"));
-  Serial.println(F("------------------------------------"));
-  // Set delay between sensor readings based on sensor details.
-  delayMS = sensor.min_delay / 1000;
+// 露点（点在此温度时，空气饱和并产生露珠）
+// 参考: http://wahiduddin.net/calc/density_algorithms.htm 
+double dewPoint(double celsius, double humidity)
+{
+        double A0= 373.15/(273.15 + celsius);
+        double SUM = -7.90298 * (A0-1);
+        SUM += 5.02808 * log10(A0);
+        SUM += -1.3816e-7 * (pow(10, (11.344*(1-1/A0)))-1) ;
+        SUM += 8.1328e-3 * (pow(10,(-3.49149*(A0-1)))-1) ;
+        SUM += log10(1013.246);
+        double VP = pow(10, SUM-3) * humidity;
+        double T = log(VP/0.61078);   // temp var
+        return (241.88 * T) / (17.558-T);
 }
 
-void loop() {
-  // Delay between measurements.
-  delay(delayMS);
-  // Get temperature event and print its value.
-  sensors_event_t event;
-  dht.temperature().getEvent(&event);
-  if (isnan(event.temperature)) {
-    Serial.println(F("Error reading temperature!"));
+// 快速计算露点，速度是5倍dewPoint()
+// 参考: http://en.wikipedia.org/wiki/Dew_point
+double dewPointFast(double celsius, double humidity)
+{
+        double a = 17.271;
+        double b = 237.7;
+        double temp = (a * celsius) / (b + celsius) + log(humidity/100);
+        double Td = (b * temp) / (a - temp);
+        return Td;
+}
+
+#include <dht11.h>
+
+dht11 DHT11;
+
+#define DHT11PIN D5
+
+void setup()
+{
+  Serial.begin(9600);
+  Serial.println("DHT11 TEST PROGRAM ");
+  Serial.print("LIBRARY VERSION: ");
+  Serial.println(DHT11LIB_VERSION);
+  Serial.println();
+}
+
+void loop()
+{
+  Serial.println("\n");
+
+  int chk = DHT11.read(DHT11PIN);
+
+  Serial.print("Read sensor: ");
+  switch (chk)
+  {
+    case DHTLIB_OK: 
+                Serial.println("OK"); 
+                break;
+    case DHTLIB_ERROR_CHECKSUM: 
+                Serial.println("Checksum error"); 
+                break;
+    case DHTLIB_ERROR_TIMEOUT: 
+                Serial.println("Time out error"); 
+                break;
+    default: 
+                Serial.println("Unknown error"); 
+                break;
   }
-  else {
-    Serial.print(F("Temperature: "));
-    Serial.print(event.temperature);
-    Serial.println(F("°C"));
-  }
-  // Get humidity event and print its value.
-  dht.humidity().getEvent(&event);
-  if (isnan(event.relative_humidity)) {
-    Serial.println(F("Error reading humidity!"));
-  }
-  else {
-    Serial.print(F("Humidity: "));
-    Serial.print(event.relative_humidity);
-    Serial.println(F("%"));
-  }
+
+  Serial.print("Humidity (%): ");
+  Serial.println((float)DHT11.humidity, 2);
+
+  Serial.print("Temperature (oC): ");
+  Serial.println((float)DHT11.temperature, 2);
+
+  Serial.print("Temperature (oF): ");
+  Serial.println(Fahrenheit(DHT11.temperature), 2);
+
+  Serial.print("Temperature (K): ");
+  Serial.println(Kelvin(DHT11.temperature), 2);
+
+  Serial.print("Dew Point (oC): ");
+  Serial.println(dewPoint(DHT11.temperature, DHT11.humidity));
+
+  Serial.print("Dew PointFast (oC): ");
+  Serial.println(dewPointFast(DHT11.temperature, DHT11.humidity));
+
+  delay(2000);
 }
